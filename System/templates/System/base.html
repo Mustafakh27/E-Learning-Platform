@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}A-To-Z Platform{% endblock %}</title>
+    <title>{% block title %}E-Learning Platform{% endblock %}</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2224%22 fill=%22%230ea5e9%22/><path d=%22M50 22L18 38l32 16 32-16-32-16zm-20 28v22l20 10 20-10V50%22 fill=%22none%22 stroke=%22%23ffffff%22 stroke-width=%228%22 stroke-linejoin=%22round%22 stroke-linecap=%22round%22/></svg>">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -34,6 +34,48 @@
         --shadow-lg:0 12px 48px rgba(0,0,0,0.6);
         --shadow-glow:0 0 0 3px rgba(14,165,233,0.25);
     }
+
+    .legal-modal{
+        display:none;
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,.6);
+        z-index:99999;
+        align-items:center;
+        justify-content:center;
+    }
+
+    .legal-modal.show{
+        display:flex;
+    }
+
+    .legal-modal-content{
+        width:min(800px,90%);
+        max-height:80vh;
+        overflow:auto;
+        background:var(--bg-surface);
+        border-radius:16px;
+        padding:24px;
+    }
+
+    .legal-header{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:20px;
+    }
+
+    .legal-header button{
+        border:none;
+        background:none;
+        font-size:24px;
+        cursor:pointer;
+    }
+
+    .legal-body{
+        line-height:1.9;
+    }
+
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html{scroll-behavior:smooth}
     body{font-family:'Cairo','Plus Jakarta Sans',sans-serif;background:var(--bg-base);color:var(--text-primary);line-height:1.6;min-height:100vh;display:flex;flex-direction:column;transition:background var(--t),color var(--t);-webkit-font-smoothing:antialiased}
@@ -276,15 +318,30 @@ function applyTheme(t) {
     localStorage.setItem('nahwa_theme', t);
 }
 function toggleTheme() { applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
+
 function applyLang(l) {
     html.setAttribute('data-lang', l);
     html.setAttribute('lang', l);
     html.setAttribute('dir', l === 'ar' ? 'rtl' : 'ltr');
+
     const btn = document.getElementById('langToggle');
     if (btn) btn.textContent = l === 'ar' ? 'EN' : 'عربي';
-    document.querySelectorAll('[data-ar][data-en]').forEach(el => { el.textContent = l === 'ar' ? el.dataset.ar : el.dataset.en; });
+
+    document.querySelectorAll('[data-ar][data-en]').forEach(el => {
+        const text = l === 'ar'
+            ? el.dataset.ar
+            : el.dataset.en;
+
+        if (el.tagName === 'INPUT') {
+            el.placeholder = text;
+        } else {
+            el.textContent = text;
+        }
+    });
+
     localStorage.setItem('nahwa_lang', l);
 }
+
 function toggleLang() { applyLang(html.getAttribute('data-lang') === 'ar' ? 'en' : 'ar'); }
 function openMobileNav()  { document.getElementById('mobileDrawer').classList.add('open'); }
 function closeMobileNav() { document.getElementById('mobileDrawer').classList.remove('open'); }
@@ -319,8 +376,76 @@ document.addEventListener('click', function(event) {
     }
 });
 
+function openTerms() {
+    document.getElementById('legalTitle').textContent =
+        html.getAttribute('data-lang') === 'ar'
+            ? 'الشروط والأحكام'
+            : 'Terms & Conditions';
+
+    document.getElementById('legalBody').innerHTML =
+        html.getAttribute('data-lang') === 'ar'
+            ? `
+                <p>باستخدام منصة E-Learning Platform فإنك توافق على الالتزام بجميع القوانين والسياسات الخاصة بالمنصة.</p>
+
+                <p>يُمنع إساءة استخدام المحتوى أو مشاركة الحسابات أو نشر أي محتوى مخالف.</p>
+
+                <p>تحتفظ المنصة بحق تعديل الخدمات أو السياسات في أي وقت.</p>
+              `
+            : `
+                <p>By using E-Learning Platform, you agree to comply with all platform policies and regulations.</p>
+
+                <p>Account sharing and misuse of content are prohibited.</p>
+
+                <p>The platform reserves the right to modify services and policies at any time.</p>
+              `;
+
+    document.getElementById('legalModal').classList.add('show');
+}
+
+function openPrivacy() {
+    document.getElementById('legalTitle').textContent =
+        html.getAttribute('data-lang') === 'ar'
+            ? 'سياسة الخصوصية'
+            : 'Privacy Policy';
+
+    document.getElementById('legalBody').innerHTML =
+        html.getAttribute('data-lang') === 'ar'
+            ? `
+                <p>نحترم خصوصيتك ونلتزم بحماية بياناتك الشخصية.</p>
+
+                <p>يتم استخدام البيانات لتحسين تجربة التعلم فقط.</p>
+
+                <p>لن تتم مشاركة بياناتك مع أي طرف ثالث دون موافقتك.</p>
+              `
+            : `
+                <p>We respect your privacy and are committed to protecting your personal information.</p>
+
+                <p>Your data is used only to improve the learning experience.</p>
+
+                <p>We do not share your information with third parties without your consent.</p>
+              `;
+
+    document.getElementById('legalModal').classList.add('show');
+}
+
+function closeLegalModal() {
+    document.getElementById('legalModal').classList.remove('show');
+}
+
 initPrefs();
 </script>
 {% block extra_js %}{% endblock %}
+
+<div id="legalModal" class="legal-modal">
+    <div class="legal-modal-content">
+        <div class="legal-header">
+            <h3 id="legalTitle"></h3>
+            <button onclick="closeLegalModal()">✕</button>
+        </div>
+
+        <div id="legalBody" class="legal-body"></div>
+    </div>
+</div>
+
 </body>
 </html>

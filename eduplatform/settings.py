@@ -85,11 +85,11 @@ LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
 
 JAZZMIN_SETTINGS = {
-    "site_title": "إدارة منصة نحوى",
-    "site_header": "نحوى",
-    "site_brand": "منصة نحوى",
-    "welcome_sign": "مرحباً بك في لوحة تحكم منصة نحوى",
-    "copyright": "Nahwa Platform Ltd",
+    "site_title": "إدارة المنصة التعليمية",
+    "site_header": "E-Learning Platform",
+    "site_brand": "E-Learning Platform",
+    "welcome_sign": "مرحباً بك في لوحة تحكم المنصة التعليمية",
+    "copyright": "E-Learning Platform Ltd",
     "show_sidebar": True,
     "navigation_expanded": True,
     "show_ui_builder": False,
