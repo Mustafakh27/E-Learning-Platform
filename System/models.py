@@ -178,6 +178,7 @@ class Question(models.Model):
     QUESTION_TYPES = (
         ('mcq', 'اختيار من متعدد'),
         ('true_false', 'صح أو خطأ'),
+        ('essay', 'مقالي'),
     )
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE, related_name='questions')
     text = models.TextField()
@@ -186,7 +187,7 @@ class Question(models.Model):
     option_b = models.CharField(max_length=300, blank=True, null=True)
     option_c = models.CharField(max_length=300, blank=True, null=True)
     option_d = models.CharField(max_length=300, blank=True, null=True)
-    correct_answer = models.CharField(max_length=10)  # 'A','B','C','D' or 'true','false'
+    correct_answer = models.CharField(max_length=10, blank=True, null=True)  # 'A','B','C','D' or 'true','false'
     marks = models.PositiveIntegerField(default=1)
     order = models.PositiveIntegerField(default=0)
 
@@ -219,11 +220,12 @@ class StudentAnswer(models.Model):
     """إجابات الطالب"""
     attempt = models.ForeignKey(ExamAttempt, on_delete=models.CASCADE, related_name='answers')
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    answer = models.CharField(max_length=10)
+    answer = models.TextField()
     is_correct = models.BooleanField(default=False)
+    graded = models.BooleanField(default=False)  # للأسئلة المقالية التي تحتاج تصحيح يدوي
 
     def __str__(self):
-        return f"إجابة: {self.answer} ({'صح' if self.is_correct else 'خطأ'})"
+        return f"إجابة: {self.answer[:50]} ({'صح' if self.is_correct else 'خطأ'})"
 
 
 class Notification(models.Model):

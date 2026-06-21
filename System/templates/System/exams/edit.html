@@ -1,5 +1,5 @@
 {% extends 'System/base.html' %}
-{% block title %}تعديل الامتحان — E-Learning Platform{% endblock %}
+{% block title %}تعديل الامتحان — A-toZ{% endblock %}
 {% block extra_css %}
 <style>
 .question-card {
@@ -48,9 +48,14 @@
                         درجة النجاح: <strong>{{ exam.pass_score }}%</strong>
                     </p>
                 </div>
-                <a href="{% url 'question_add' exam.pk %}" class="btn btn-primary">
-                    <i class="bi bi-plus-circle-fill"></i> إضافة سؤال
-                </a>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <a href="{% url 'question_add' exam.pk %}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle-fill"></i> إضافة سؤال
+                    </a>
+                    <a href="{% url 'exam_attempts' exam.pk %}" class="btn btn-ghost">
+                        <i class="bi bi-people"></i> المحاولات
+                    </a>
+                </div>
             </div>
 
             {% for q in questions %}
@@ -67,8 +72,10 @@
                             {% if q.option_c %}<div style="padding:6px 10px;background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--r-sm);font-size:.82rem;"><strong>ج.</strong> {{ q.option_c }}</div>{% endif %}
                             {% if q.option_d %}<div style="padding:6px 10px;background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--r-sm);font-size:.82rem;"><strong>د.</strong> {{ q.option_d }}</div>{% endif %}
                         </div>
-                        {% else %}
+                        {% elif q.question_type == 'true_false' %}
                         <div style="font-size:.82rem;color:var(--text-muted);margin-bottom:8px;">صح أو خطأ</div>
+                        {% elif q.question_type == 'essay' %}
+                        <div style="font-size:.82rem;color:var(--text-muted);margin-bottom:8px;">مقالي</div>
                         {% endif %}
 
                         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">

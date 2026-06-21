@@ -1,5 +1,5 @@
 {% extends 'System/base.html' %}
-{% block title %}Dashboard — E-Learning Platform{% endblock %}
+{% block title %}Dashboard — A-toZ{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -236,12 +236,7 @@
             </div>
             
             <div class="flex gap-3">
-                {% if user.role == 'teacher' %}
-                <a href="{% url 'course_create' %}" class="btn btn-primary btn-lg" style="border-radius: 12px;">
-                    <i class="bi bi-plus-lg"></i>
-                    <span data-ar="كورس جديد" data-en="New Course">كورس جديد</span>
-                </a>
-                {% else %}
+                {% if user.role == 'student' %}
                 <a href="{% url 'course_list' %}" class="btn btn-primary btn-lg" style="border-radius: 12px;">
                     <i class="bi bi-compass"></i>
                     <span data-ar="تصفح الكورسات" data-en="Explore Courses">تصفح الكورسات</span>
@@ -317,7 +312,7 @@
 
     <div class="section-header mb-6">
         <h2 class="section-title" data-ar="إدارة الكورسات" data-en="Manage Courses">إدارة الكورسات</h2>
-        <a href="{% url 'course_create' %}" class="btn btn-ghost btn-sm" style="border-radius: 8px;">
+        <a href="{% url 'course_create' %}" class="btn btn-primary btn-sm" style="border-radius: 8px;">
             <i class="bi bi-plus-lg"></i>
             <span data-ar="إضافة كورس" data-en="Add Course">إضافة كورس</span>
         </a>

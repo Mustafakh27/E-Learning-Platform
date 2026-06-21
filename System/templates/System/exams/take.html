@@ -1,5 +1,5 @@
 {% extends 'System/base.html' %}
-{% block title %}{{ exam.title }} — E-Learning Platform{% endblock %}
+{% block title %}{{ exam.title }} — A-toZ{% endblock %}
 {% block extra_css %}
 <style>
 .exam-header {
@@ -120,7 +120,7 @@
                     <span><strong>د.</strong> {{ q.option_d }}</span>
                 </label>
                 {% endif %}
-                {% else %}
+                {% elif q.question_type == 'true_false' %}
                 <label class="option-label">
                     <input type="radio" name="q_{{ q.pk }}" value="TRUE" required>
                     <span>✅ صح</span>
@@ -129,6 +129,8 @@
                     <input type="radio" name="q_{{ q.pk }}" value="FALSE">
                     <span>❌ خطأ</span>
                 </label>
+                {% elif q.question_type == 'essay' %}
+                <textarea name="q_{{ q.pk }}" class="form-control" rows="5" placeholder="اكتب إجابتك هنا..." required></textarea>
                 {% endif %}
             </div>
             {% endfor %}

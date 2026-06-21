@@ -87,10 +87,10 @@ LOGOUT_REDIRECT_URL = '/'
 
 JAZZMIN_SETTINGS = {
     "site_title": "إدارة المنصة التعليمية",
-    "site_header": "E-Learning Platform",
-    "site_brand": "E-Learning Platform",
+    "site_header": "A-toZ",
+    "site_brand": "A-toZ",
     "welcome_sign": "مرحباً بك في لوحة تحكم المنصة التعليمية",
-    "copyright": "E-Learning Platform Ltd",
+    "copyright": "A-toZ Ltd",
     "show_sidebar": True,
     "navigation_expanded": True,
     "show_ui_builder": False,

@@ -35,6 +35,8 @@ urlpatterns = [
     path('questions/<int:pk>/delete/', views.question_delete, name='question_delete'),
     path('exams/<int:pk>/take/', views.exam_take, name='exam_take'),
     path('exams/result/<int:pk>/', views.exam_result, name='exam_result'),
+    path('exams/<int:pk>/attempts/', views.exam_attempts, name='exam_attempts'),
+    path('exams/attempt/<int:pk>/grade/', views.grade_essay, name='grade_essay'),
 
     # Grades & Students
     path('grades/', views.student_grades, name='student_grades'),

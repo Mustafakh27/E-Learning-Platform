@@ -73,10 +73,8 @@ def dashboard(request):
         courses = Course.objects.filter(teacher=user)
         upcoming_meetings = Meeting.objects.filter(teacher=user, status__in=['scheduled', 'live']).order_by('scheduled_at')[:5]
         
-        # التعديل هنا: إضافة status='approved' لعد الطلاب المقبولين فقط
         total_students = Enrollment.objects.filter(course__teacher=user, status='approved').values('student').distinct().count()
         
-        # جلب الطلبات المعلقة للمدرس
         pending_enrollments = Enrollment.objects.filter(course__teacher=user, status='pending')
         ctx = {
             'courses': courses,
@@ -512,17 +510,30 @@ def exam_take(request, pk):
 
         for question in questions:
             answer_key = f'q_{question.pk}'
-            given_answer = request.POST.get(answer_key, '').strip().upper()
-            correct = question.correct_answer.strip().upper()
-            is_correct = given_answer == correct
-            if is_correct:
-                score += question.marks
-            StudentAnswer.objects.create(
-                attempt=attempt,
-                question=question,
-                answer=given_answer,
-                is_correct=is_correct
-            )
+            given_answer = request.POST.get(answer_key, '').strip()
+            
+            if question.question_type == 'essay':
+                # Essay questions are not auto-graded
+                StudentAnswer.objects.create(
+                    attempt=attempt,
+                    question=question,
+                    answer=given_answer,
+                    is_correct=False,
+                    graded=False
+                )
+            else:
+                # MCQ and True/False: auto-grade
+                correct = (question.correct_answer or '').strip().upper()
+                is_correct = given_answer.upper() == correct
+                if is_correct:
+                    score += question.marks
+                StudentAnswer.objects.create(
+                    attempt=attempt,
+                    question=question,
+                    answer=given_answer,
+                    is_correct=is_correct,
+                    graded=True
+                )
 
         attempt.score = score
         attempt.total_marks = total_marks
@@ -562,6 +573,80 @@ def exam_result(request, pk):
     answers = attempt.answers.select_related('question').all()
     return render(request, 'System/exams/result.html', {
         'attempt': attempt, 'answers': answers
+    })
+
+
+@login_required
+def exam_attempts(request, pk):
+    """قائمة محاولات الامتحان"""
+    exam = get_object_or_404(Exam, pk=pk, course__teacher=request.user)
+    attempts = exam.attempts.select_related('student').all().order_by('-submitted_at')
+    
+    # Pre-compute pending essay status for each attempt
+    for attempt in attempts:
+        attempt.has_pending_essay = attempt.answers.filter(
+            question__question_type='essay',
+            graded=False
+        ).exists()
+    
+    # حساب الإحصائيات
+    total_attempts = attempts.count()
+    passed_count = attempts.filter(passed=True).count()
+    pending_essay_count = sum(1 for a in attempts if a.has_pending_essay)
+    
+    return render(request, 'System/exams/attempts.html', {
+        'exam': exam,
+        'attempts': attempts,
+        'total_attempts': total_attempts,
+        'passed_count': passed_count,
+        'pending_essay_count': pending_essay_count,
+    })
+
+
+@login_required
+def grade_essay(request, pk):
+    """تصحيح الأسئلة المقالية"""
+    attempt = get_object_or_404(ExamAttempt, pk=pk)
+    
+    # التحقق أن المدرس هو صاحب الكورس
+    if attempt.exam.course.teacher != request.user:
+        messages.error(request, 'غير مصرح.')
+        return redirect('dashboard')
+    
+    essay_answers = attempt.answers.filter(question__question_type='essay').select_related('question')
+    
+    if request.method == 'POST':
+        total_score = attempt.score
+        total_marks = attempt.total_marks
+        
+        for answer in essay_answers:
+            field_name = f'grade_{answer.pk}'
+            if field_name in request.POST:
+                new_is_correct = request.POST[field_name] == 'correct'
+                old_is_correct = answer.is_correct
+                
+                if new_is_correct != old_is_correct:
+                    if new_is_correct and not old_is_correct:
+                        total_score += answer.question.marks
+                    elif not new_is_correct and old_is_correct:
+                        total_score -= answer.question.marks
+                
+                answer.is_correct = new_is_correct
+                answer.graded = True
+                answer.save()
+        
+        attempt.score = total_score
+        attempt.total_marks = total_marks
+        attempt.percentage = round((total_score / total_marks) * 100, 2) if total_marks > 0 else 0
+        attempt.passed = attempt.percentage >= attempt.exam.pass_score
+        attempt.save()
+        
+        messages.success(request, 'تم حفظ التصحيح بنجاح!')
+        return redirect('exam_attempts', pk=attempt.exam.pk)
+    
+    return render(request, 'System/exams/grade_essay.html', {
+        'attempt': attempt,
+        'essay_answers': essay_answers,
     })
 
 

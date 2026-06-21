@@ -1,5 +1,5 @@
 {% extends 'System/base.html' %}
-{% block title %}نتيجة الامتحان — E-Learning Platform{% endblock %}
+{% block title %}نتيجة الامتحان — A-toZ{% endblock %}
 {% block extra_css %}
 <style>
 .result-hero {
@@ -39,6 +39,7 @@
 }
 .answer-row.correct { background: rgba(34,197,94,.05); border-color: rgba(34,197,94,.2); }
 .answer-row.wrong { background: rgba(239,68,68,.04); border-color: rgba(239,68,68,.15); }
+.answer-row.pending { background: rgba(234,179,8,.04); border-color: rgba(234,179,8,.15); }
 .answer-icon {
     width: 32px; height: 32px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
@@ -105,6 +106,27 @@
     </h2>
 
     {% for ans in answers %}
+    {% if ans.question.question_type == 'essay' and not ans.graded %}
+    <div class="answer-row pending">
+        <div class="answer-icon" style="background:rgba(234,179,8,.12);color:var(--warning);">
+            <i class="bi bi-clock"></i>
+        </div>
+        <div style="flex:1;min-width:0;">
+            <div style="font-weight:700;font-size:.9rem;color:var(--text-primary);margin-bottom:8px;">{{ ans.question.text }}</div>
+            <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:.8rem;">
+                <span style="color:var(--text-muted);">
+                    <span data-ar="إجابتك:" data-en="Your answer:">إجابتك:</span> <strong style="color:var(--warning);">
+                        {{ ans.answer }}
+                    </strong>
+                </span>
+                <span style="color:var(--warning);font-weight:600;">⏳ قيد المراجعة</span>
+            </div>
+        </div>
+        <div style="font-size:.8rem;font-weight:700;color:var(--text-muted);">
+            {{ ans.question.marks }} <span data-ar="درجة" data-en="Marks">درجة</span>
+        </div>
+    </div>
+    {% else %}
     <div class="answer-row {% if ans.is_correct %}correct{% else %}wrong{% endif %}">
         <div class="answer-icon" style="background:{% if ans.is_correct %}rgba(34,197,94,.15){% else %}rgba(239,68,68,.12){% endif %};color:{% if ans.is_correct %}#16a34a{% else %}var(--danger){% endif %};">
             {% if ans.is_correct %}<i class="bi bi-check-lg"></i>{% else %}<i class="bi bi-x-lg"></i>{% endif %}
@@ -117,7 +139,7 @@
                         {{ ans.answer }}
                     </strong>
                 </span>
-                {% if not ans.is_correct %}
+                {% if not ans.is_correct and ans.question.question_type != 'essay' %}
                 <span style="color:var(--text-muted);">
                     <span data-ar="الصحيحة:" data-en="Correct:">الصحيحة:</span> <strong style="color:#16a34a;">{{ ans.question.correct_answer }}</strong>
                 </span>
@@ -128,15 +150,23 @@
             {{ ans.question.marks }} <span data-ar="درجة" data-en="Marks">درجة</span>
         </div>
     </div>
+    {% endif %}
     {% endfor %}
 
     <div style="display:flex;gap:12px;margin-top:32px;flex-wrap:wrap;">
         <a href="{% url 'course_detail' attempt.exam.course.pk %}" class="btn btn-primary btn-lg">
             <i class="bi bi-arrow-right"></i> <span data-ar="العودة للكورس" data-en="Back to Course">العودة للكورس</span>
         </a>
+        {% if user == attempt.exam.course.teacher %}
+        <a href="{% url 'grade_essay' attempt.pk %}" class="btn btn-ghost btn-lg">
+            <i class="bi bi-pencil-square"></i> تصحيح المقالي
+        </a>
+        {% endif %}
+        {% if user == attempt.student %}
         <a href="{% url 'student_grades' %}" class="btn btn-ghost btn-lg">
             <i class="bi bi-bar-chart"></i> <span data-ar="سجل درجاتي" data-en="My Grades">سجل درجاتي</span>
         </a>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
