@@ -58,7 +58,14 @@
                     <label style="display:block;font-weight:700;font-size:.875rem;color:var(--text-primary);margin-bottom:8px;">
                         نص السؤال <span style="color:var(--danger);">*</span>
                     </label>
-                    <textarea name="text" class="form-control" rows="3" placeholder="اكتب نص السؤال هنا..." required></textarea>
+                    <textarea
+                        name="text"
+                        class="form-control"
+                        rows="3"
+                        placeholder="اكتب نص السؤال هنا..."
+                        data-ar-placeholder="اكتب نص السؤال هنا..."
+                        data-en-placeholder="Write the question text here..."
+                        required></textarea>
                 </div>
 
                 <div id="mcqOptions" class="options-section show">
@@ -147,13 +154,16 @@
                                  نموذج الإجابة (اختياري)
                              </label>
 
-        <textarea
-            name="essay_answer"
-            class="form-control"
-            rows="5"
-            placeholder="اكتب نموذج الإجابة هنا..."></textarea>
-    </div>
-</div>
+                <textarea
+                    name="essay_answer"
+                    class="form-control"
+                    rows="5"
+                    placeholder="اكتب نموذج الإجابة هنا..."
+                    data-ar-placeholder="اكتب نموذج الإجابة هنا..."
+                    data-en-placeholder="Write the sample answer here...">
+                </textarea>
+                </div>
+            </div>
 
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px;">
                     <div>
