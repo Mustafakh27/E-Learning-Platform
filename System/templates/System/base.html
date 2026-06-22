@@ -332,7 +332,10 @@ function applyLang(l) {
             ? el.dataset.ar
             : el.dataset.en;
 
-        if (el.tagName === 'INPUT') {
+        if (
+            el.tagName === 'INPUT' ||
+            el.tagName === 'TEXTAREA'
+        ) {
             el.placeholder = text;
         } else {
             el.textContent = text;
